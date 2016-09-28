@@ -2,8 +2,15 @@ require "json"
 require 'net/http'
 
 
-url = 'http://shopicruit.myshopify.com/products.json?page=1'
-uri = URI(url)
-response = Net::HTTP.get(uri)
+urls = ['http://shopicruit.myshopify.com/products.json?page=1','http://shopicruit.myshopify.com/products.json?page=2','http://shopicruit.myshopify.com/products.json?page=3','http://shopicruit.myshopify.com/products.json?page=4','http://shopicruit.myshopify.com/products.json?page=5']
 
-parsed_response = JSON.parse(response) # turn the JSON response into a Ruby Hash
+total_json_database = []
+
+
+urls.each do |url|
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    total_json_database << JSON.parse(response) # turn the JSON response into a Ruby Hash
+end
+
+puts total_json_database
