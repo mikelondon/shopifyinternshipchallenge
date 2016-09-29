@@ -18,8 +18,9 @@ end
 
 total_json_database.each do |page|
     page['products'].each do |item|
-        item_price = item['variants'][0]['price'].to_f
-        total_page_price += item_price
+        if item['product_type'] == "Clock" || item['product_type'] == "Watch"
+            total_page_price += item['variants'][0]['price'].to_f
+        end
     end
 end
 
