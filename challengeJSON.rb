@@ -1,31 +1,32 @@
-require "json"
+require 'json'
 require 'net/http'
 
-store_page_urls = ['http://shopicruit.myshopify.com/products.json?page=1','http://shopicruit.myshopify.com/products.json?page=2','http://shopicruit.myshopify.com/products.json?page=3','http://shopicruit.myshopify.com/products.json?page=4','http://shopicruit.myshopify.com/products.json?page=5']
-total_page_price = 0
+i = 1
 total_json_database = []
+total_cw_price = 0
+enpoint_url = 'http://shopicruit.myshopify.com/products.json?page='
 
-# Send a request to the JSON endpoints for each page. Store the response in our "pseudo-JSON database" Parse the JSON into a ruby hash so we can work with it in Ruby.
-# Edge cases are that we require the page to be set up in the way the endpoint is returned. We can turn these into methods to where we check to see if we are given an in correct input.
-
-store_page_urls.each do |url|
-    uri = URI(url)
+loop do
+    uri = URI(enpoint_url + i.to_s)
     response = Net::HTTP.get(uri)
-    total_json_database << JSON.parse(response)
+    server_response = JSON.parse(response)
+
+    break if server_response['products'].empty?
+    total_json_database << server_response
+    i += 1
 end
 
-# Go through the collection of pages and run a double iteration over the products and items to gram the varrying price.
+def is_watch?(item)
+    item['product_type'] == 'Clock' || item['product_type'] == 'Watch'
+end
 
 total_json_database.each do |page|
     page['products'].each do |item|
-        if item['product_type'] == "Clock" || item['product_type'] == "Watch"
-            total_page_price += item['variants'][0]['price'].to_f
+        next unless is_watch?(item)
+        item['variants'].each do |variant|
+            total_cw_price += variant['price'].to_f
         end
     end
 end
 
-# I do not believe this is the most efficient way to calculate the price but it is an MVP
-# Print the result of the page
-puts total_page_price
-
-#
+puts total_cw_price
